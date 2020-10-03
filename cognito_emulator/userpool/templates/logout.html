@@ -1,0 +1,22 @@
+<!doctype html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <form method="POST" action="{{ request.url_for('pools:signout', pool=pool.key) }}">
+    <input type="hidden" name="client_id" value="{{ client.oauth2_client_id }}" />
+    {% if back_to %}
+    <input type="hidden" name="back_to" value="{{ back_to }}" />
+    {% endif %}
+    <script type="text/javascript">
+      (function (scripts) {
+        window.addEventListener("load", function () {
+          scripts[scripts.length - 1].parentNode.submit();
+        });
+      })(document.getElementsByTagName("script"));
+    </script>
+  </form>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<fieldset class="form-group" id="{{ field_id }}">
+  <legend class="col-form-label">
+    {{ label }}
+  </legend>
+
+  <div>
+    <div class="input-group">
+      <input type="{{ input_type }}" class="form-control form-control-sm {% if error %}is-invalid{% endif %}" value="" />
+      <span class="input-group-append">
+        <button class="btn btn-sm btn-outline-primary ml-2" type="button">+</button>
+      </span>
+      {% if error %}
+      <small class="invalid-feedback">{{ error }}</small>
+      {% elif field.description %}
+      <small class="form-text text-muted">{{ field.description }}</small>
+      {% endif %}
+    </div>
+
+    <ul class="list-group mt-2 {% if error %}is-invalid{% endif %}">
+      <li class="list-group-item d-flex justify-content-between align-items-center" style="display: none !important">
+        <span>
+          <input type="hidden" data-name="{{ field_name }}[]" />
+        </span>
+        <button type="button" class="close" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </li>
+    {% if value %}
+    {% for item in value %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>
+          {{ item }}
+          <input type="hidden" name="{{ field_name }}[]" value="{{ item }}" />
+        </span>
+        <button type="button" class="close" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </li>
+    {% endfor %}
+    {% endif %}
+    </ul>
+
+    <script type="text/javascript">
+      (function (container) {
+        var allowNull = {{ "true" if field.items.allow_null else "false" }};
+        var allowBlank = {{ "true" if field.items.allow_blank else "false" }};
+        var input = container.querySelector("input.form-control");
+        var button = container.querySelector("button:first-of-type");
+        var listGroup = container.querySelector("ul.list-group");
+        var template = listGroup.querySelector("li:first-of-type");
+        var closeButtons = container.querySelectorAll("button.close");
+
+        function applyEventListenerForClose(b) {
+          b.addEventListener("click", function (e) {
+            b.parentNode.parentNode.removeChild(b.parentNode);
+          });
+        }
+        for (var i = 0; i < closeButtons.length; i++) {
+          applyEventListenerForClose(closeButtons[i]);
+        }
+        function setButtonState() {
+          button.disabled = !allowNull && !allowBlank && input.value === "";
+          console.log(button.disabled);
+        }
+        function doAddItem() {
+          if (!allowBlank && !allowNull && input.value === "") {
+            input.classList.add("is-invalid");
+            return;
+          }
+          listGroup.insertAdjacentHTML("beforeend", template.outerHTML);
+          var justInserted = listGroup.querySelector("li:last-of-type");
+          var hidden = justInserted.querySelector("input[type='hidden']")
+          hidden.insertAdjacentText("beforebegin", input.value);
+          hidden.value = input.value;
+          input.value = "";
+          setButtonState();
+          applyEventListenerForClose(justInserted.querySelector("button.close"));
+          hidden.name = hidden.dataset.name;
+          delete hidden.dataset.name;
+          justInserted.removeAttribute("style");
+        }
+        setButtonState();
+        input.addEventListener("input", function() {
+          input.classList.remove("is-invalid");
+          setButtonState();
+        });
+        input.addEventListener("keydown", function (e) {
+          if (e.key == "Enter" && !e.metaKey && !e.shiftKey && !e.ctrlKey) {
+            e.preventDefault();
+            doAddItem();
+            return false;
+          }
+          return true;
+        });
+        button.addEventListener("click", function (e) {
+          e.preventDefault();
+          doAddItem();
+        });
+      })((function (scripts) { return scripts[scripts.length - 1]; })(document.getElementsByTagName("script")).parentNode);
+    </script>
+  </div>
+</fieldset>

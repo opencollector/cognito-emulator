@@ -1,0 +1,35 @@
+{% extends "_layouts/_admin_base.html" %}
+{% block sidebar %}
+<nav class="sidebar-toc">
+  <ul>
+    <li class="sidebar-toc-entry">
+      <a href="#">User pools</a>
+    </li>
+    <li class="sidebar-toc-entry active">
+      <a href="{{ request.url_for('admin:index') }}">Identity pools</a>
+      <ul>
+        {% if not pool %}
+        <li class="sidebar-toc-entry active">
+          <span>(New pool)</span>
+        </li>
+        {% endif %}
+        {% for _pool in pools %}
+        {% if pool == _pool %}
+        <li class="sidebar-toc-entry active">
+          <span>{{ pool.name }} ({{ pool.key }})</span>
+          <ul>
+            <li class="sidebar-toc-entry"><a href="{{ request.url_for('admin:pool:providers:index', pool=pool.key) }}">Providers</a></li>
+            <li class="sidebar-toc-entry"><a href="{{ request.url_for('admin:pool:identities:index', pool=pool.key) }}">Identities</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="sidebar-toc-entry">
+          <a href="{{ request.url_for('admin:pool:index', pool=_pool.key) }}">{{ _pool.name }} ({{ _pool.key }})</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </li>
+  </ul>
+</nav>
+{% endblock %}

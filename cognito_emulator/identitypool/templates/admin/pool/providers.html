@@ -1,0 +1,58 @@
+{% extends "_layouts/_admin_base.html" %}
+{% block sidebar %}
+<nav class="sidebar-toc">
+  <ul>
+    <li class="sidebar-toc-entry">
+      <a href="#">User pools</a>
+    </li>
+    <li class="sidebar-toc-entry active">
+      <a href="{{ request.url_for('admin:index') }}">Identity pools</a>
+      <ul>
+        {% for _pool in pools %}
+        {% if pool == _pool %}
+        <li class="sidebar-toc-entry active">
+          <a href="{{ request.url_for('admin:pool:index', pool=pool.key) }}">{{ pool.name }} ({{ pool.key }})</a>
+          <ul>
+            <li class="sidebar-toc-entry"><span>Providers</span></li>
+            <li class="sidebar-toc-entry"><a href="{{ request.url_for('admin:pool:identities:index', pool=pool.key) }}">Identities</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="sidebar-toc-entry">
+          <a href="{{ request.url_for('admin:pool:index', pool=_pool.key) }}">{{ _pool.name }} ({{ _pool.key }})</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </li>
+  </ul>
+</nav>
+{% endblock %}
+{% block main %}
+<header>
+  <div class="float-right">
+    <a href="{{ request.url_for('admin:pool:providers:provider:edit', pool=pool.key, provider='+') }}" class="btn btn-primary">Add provider</a>
+  </div>
+  <h1>Providers</h1>
+</header>
+<section>
+  <table class="table table-striped table-hover">
+    <thead class="thead-light">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col" class="d-none d-md-table-cell">Client ID</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for provider in providers %}
+      <tr onclick="this.querySelector('a').dispatchEvent(new MouseEvent('click'))">
+        <th scope="row"><a href="{{ request.url_for('admin:pool:providers:provider:edit', pool=pool.key, provider=provider.url_safe_name) }}">{{ provider.id }}</a></th>
+        <td class="d-none d-md-table-cell">{{ provider.name }}</td>
+        <td class="d-none d-md-table-cell">{{ provider.client_id }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

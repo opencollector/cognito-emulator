@@ -1,0 +1,66 @@
+{% extends "_layouts/_admin_base.html" %}
+{% block sidebar %}
+<nav class="sidebar-toc">
+  <ul>
+    <li class="sidebar-toc-entry active">
+      <a href="{{ request.url_for('admin:index') }}">User pools</a>
+      <ul>
+        {% for _pool in pools %}
+        {% if pool == _pool %}
+        <li class="sidebar-toc-entry active">
+          <a href="{{ request.url_for('admin:pool:index', pool=pool.key) }}">{{ pool.name }} ({{ pool.key }})</a>
+          <ul>
+            <li class="sidebar-toc-entry"><a href="{{ request.url_for('admin:pool:users:index', pool=pool.key) }}">Users</a></li>
+            <li class="sidebar-toc-entry"><span>Groups</span></li>
+            <li class="sidebar-toc-entry"><a href="{{ request.url_for('admin:pool:clients:index', pool=pool.key) }}">Clients</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="sidebar-toc-entry">
+          <a href="{{ request.url_for('admin:pool:index', pool=_pool.key) }}">{{ _pool.name }} ({{ _pool.key }})</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </li>
+    <li class="sidebar-toc-entry"><a href="#">Identity pools</a></li>
+  </ul>
+</nav>
+{% endblock %}
+{% block main %}
+<header>
+  <div class="float-right">
+    <a href="{{ request.url_for('admin:pool:groups:group:edit', pool=pool.key, group='+') }}" class="btn btn-primary">Add group</a>
+  </div>
+  <h1>Groups</h1>
+</header>
+<section>
+  <table class="table table-striped table-hover">
+    <thead class="thead-light">
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col" class="d-none d-md-table-cell">Members</th>
+        <th scope="col" class="d-none d-md-table-cell">ID</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for group in groups %}
+      <tr onclick="this.querySelector('a').dispatchEvent(new MouseEvent('click'))">
+        <th scope="row"><a href="{{ request.url_for('admin:pool:groups:group:edit', pool=pool.key, group=group.key) }}">{{ group.id }}</a></th>
+        <td>{{ group.name }}</td>
+        <td class="d-none d-sm-table-cell">
+          {% for user in group.users[:3] %}
+          <a href="{{ request.url_for('admin:pool:users:user:edit', pool=pool.key, user=user.key) }}">{{ user.name }}</a>
+          {% endfor %}
+          {% if group.users|length > 3 %}
+          and other {{ group.users|length - 3 }} members.
+          {% endif %}
+        </td>
+        <td class="d-none d-md-table-cell">{{ group.key }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

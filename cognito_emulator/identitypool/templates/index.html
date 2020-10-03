@@ -1,0 +1,25 @@
+{% extends "_layouts/_base.html" %}
+{% block title %}Index{% endblock %}
+{% block main %}
+<header class="row align-items-center" style="margin-top: 24px; margin-bottom: 12px;">
+  <h1 class="col-12 col-md-8">Welcome to Cognito Emulator (Identity Pool)</h1>
+</header>
+<div class="row align-items-center">
+  <div class="col">
+    {% if pools %}
+    <p>There are {{ pools|length }} pool(s) registered.</p>
+    <ul>
+    {% for pool in pools %}
+      <li>
+        <span>{{ pool.name }} ({{ pool.key }})</span>
+        <a class="btn btn-sm btn-outline-success" href="{{ request.url_for('admin:pool:index', pool=pool.key) }}">Admin</a>
+      </li>
+    {% endfor %} 
+    </ul>
+    {% else %}
+    <p>No identity pools are registered.</p>
+    <p>To create a user pool, follow <a href="{{ request.url_for('admin:pool:edit', pool='+') }}">this</a>.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

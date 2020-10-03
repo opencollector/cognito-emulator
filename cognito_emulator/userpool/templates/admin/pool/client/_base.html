@@ -1,0 +1,40 @@
+{% extends "_layouts/_admin_base.html" %}
+{% block sidebar %}
+<nav class="sidebar-toc">
+  <ul>
+    <li class="sidebar-toc-entry active">
+      <a href="{{ request.url_for('admin:index') }}">User pools</a>
+      <ul>
+        {% for _pool in pools %}
+        {% if pool == _pool %}
+        <li class="sidebar-toc-entry active">
+          <a href="{{ request.url_for('admin:pool:index', pool=pool.key) }}">{{ pool.name }} ({{ pool.key }})</a>
+          <ul>
+            <li class="sidebar-toc-entry"><a href="{{ request.url_for('admin:pool:users:index', pool=pool.key) }}">Users</a></li>
+            <li class="sidebar-toc-entry"><a href="{{ request.url_for('admin:pool:groups:index', pool=pool.key) }}">Groups</a></li>
+            <li class="sidebar-toc-entry">
+              <a href="{{ request.url_for('admin:pool:clients:index', pool=pool.key) }}">Clients</a>
+              <ul>
+                <li class="sidebar-toc-entry">
+                {% if client %}
+                  <span>{{ client.name }}</span>
+                  {% else %}
+                  (New client)
+                {% endif %}
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="sidebar-toc-entry">
+          <a href="{{ request.url_for('admin:pool:index', pool=_pool.key) }}">{{ _pool.name }} ({{ _pool.key }})</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </li>
+    <li class="sidebar-toc-entry"><a href="#">Identity pools</a></li>
+  </ul>
+</nav>
+{% endblock %}

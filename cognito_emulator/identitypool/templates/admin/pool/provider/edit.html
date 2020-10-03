@@ -1,0 +1,29 @@
+{% extends "admin/pool/provider/_base.html" %}
+{% block main %}
+<header>
+  {% if provider %}
+  <div class="float-right">
+    <a href="#" class="btn btn-danger">Delete provider</a>
+  </div>
+  {% endif %}
+  <h1>
+    {% if provider %}
+    Provider “{{ provider.name }}”
+    {% else %}
+    New Provider
+    {% endif %}
+  </h1>
+</header>
+<section>
+  <form class="form" method="post">
+    {{ form }}
+    <button class="btn btn-primary">
+      {% if provider %}
+      Update
+      {% else %}
+      Add
+      {% endif %}
+    </button>
+  </form>
+</section>
+{% endblock %}

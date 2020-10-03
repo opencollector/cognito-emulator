@@ -1,0 +1,238 @@
+{% extends "admin/pool/user/_base.html" %}
+{% block main %}
+<header>
+  {% if user %}
+  <div class="float-right">
+    <button class="btn btn-light" id="btn-generate-tokens" data-target="modal-generate-tokens">Generate tokens</button>
+    <a href="{{ request.url_for('admin:pool:users:user:change_password', pool=pool.key, user=user.key) }}" class="btn btn-warning">Change password</a>
+    <a href="#" class="btn btn-danger">Delete user</a>
+  </div>
+  {% endif %}
+  <h1>
+    {% if user %}
+    User “{{ user.name }}”
+    {% else %}
+    New User
+    {% endif %}
+  </h1>
+</header>
+<section>
+  <form class="form" method="post">
+    {{ form }}
+    <button class="btn btn-primary">
+      {% if user %}
+      Update
+      {% else %}
+      Add
+      {% endif %}
+    </button>
+  </form>
+</section>
+<div class="modal" tabindex="-1" role="dialog" id="modal-generate-tokens" aria-labelledby="modal-generate-tokens-title" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-generate-tokens-title">Generate Tokens</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="select-client-id">Client</label>
+            <select class="form-control" id="select-client-id">
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="input-scope">Scope (each item is seperated by a space)</label>
+            <input type="input" class="form-control" id="input-scope" />
+            <small id="error-input-scope" class="form-text text-danger"></small>
+          </div>
+          <div class="form-group">
+            <button type="button" id="btn-do-generate" class="btn btn-primary">Generate</button>
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label-sm" for="textarea-generated-access-token">Access token</label>
+            <textarea class="form-control form-control-sm" id="textarea-generated-access-token">
+            </textarea>
+          </div>
+          <div class="form-group">
+            <labell class="form-label form-label-sm"  for="textarea-generated-refresh-token">Refresh token</label>
+            <textarea class="form-control form-control-sm" id="textarea-generated-refresh-token">
+            </textarea>
+          </div>
+          <div class="form-group">
+            <labell class="form-label form-label-sm"  for="textarea-generated-id-token">ID token</label>
+            <textarea class="form-control form-control-sm" id="textarea-generated-id-token">
+            </textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% if user %}
+<script type="text/javascript">
+(function (endpoints, btnGenerateTokens) {
+  function fetchUrl(url, options) {
+    var completion = null;
+    var completer = function (result) { completion = result; };
+    options = options || {};
+
+    var retval = {
+      then: function (cc) {
+        completer = cc;
+        if (completion != null) {
+          return cc(completion);
+        }
+      }
+    };
+
+    var xhr = new XMLHttpRequest();
+    xhr.responseType = "json";
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        return completer({
+          status: xhr.status,
+          json: function () { return { then: function (cc) { cc(xhr.response); } } }
+        });
+      }
+    };
+    xhr.open(options.method || "GET", url);
+    xhr.send(options.body || null);
+    return retval;
+  }
+
+  function showModal(target, generateEndpointUrl) {
+    var dismissers = target.querySelectorAll("[data-dismiss=modal]");
+    var form = target.querySelector("form");
+    var selector = target.querySelector("#select-client-id");
+    var btnDoGenerate = target.querySelector("#btn-do-generate");
+    var textAreaGeneratedAccessToken = target.querySelector("#textarea-generated-access-token");
+    var textAreaGeneratedRefreshToken = target.querySelector("#textarea-generated-refresh-token");
+    var textAreaGeneratedIdToken = target.querySelector("#textarea-generated-id-token");
+    var inputScope = target.querySelector("#input-scope");
+    var errorInputScope = target.querySelector("#error-input-scope");
+    var clientIdToClientMap = {};
+    var userModified = false;
+
+    function closer(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      target.classList.remove("d-block");
+      target.removeEventListener("click", closer);
+      btnDoGenerate.removeEventListener("click", doGenerate);
+      selector.removeEventListener("change", onSelectClient);
+      inputScope.removeEventListener("input", onInputScopeChange);
+      form.removeEventListener("submit", doGenerate);
+    }
+
+    function resetInteractionResult() {
+      textAreaGeneratedAccessToken.value = "";
+      textAreaGeneratedRefreshToken.value = "";
+      textAreaGeneratedIdToken.value = "";
+    }
+
+    function resetForm() {
+      userModified = false;
+      onSelectClient();
+      resetInteractionResult();
+    }
+   
+    function doGenerate(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      var option = selector.options[selector.selectedIndex];
+      var scope = inputScope.value;
+      resetInteractionResult();
+      fetchUrl(
+        generateEndpointUrl,
+        {method: "POST", body: JSON.stringify({"client_id": option.value, "scope": scope})}
+      ).then(
+        function (result) {
+          if (result.status >= 200 && result.status < 300) {
+            result.json().then(
+              function (result) {
+                textAreaGeneratedAccessToken.value = result["result"]["access_token"];
+                textAreaGeneratedRefreshToken.value = result["result"]["refresh_token"];
+                textAreaGeneratedIdToken.value = result["result"]["id_token"];
+              }
+            );
+          } else {
+            result.json().then(
+              function (result) {
+                var errors = result["errors"];
+                if (errors["scope"]) {
+                  errorInputScope.innerText = errors["scope"];
+                }
+              }
+            );
+          }
+        }
+      );
+    }
+
+    function onInputScopeChange() {
+      userModified = true;
+    }
+
+    function onSelectClient() {
+      if (!userModified && selector.options.length > 0) {
+        inputScope.value = clientIdToClientMap[selector.options[selector.selectedIndex].value].scope.join(" ");
+      }
+    }
+
+    for (var i = dismissers.length; --i >= 0;) {
+      dismissers[i].addEventListener("click", closer, false);
+    }
+
+    fetchUrl(endpoints.listEligibleClients).then(
+      function (resp) {
+        resp.json().then(function (result) {
+          for (var n = selector.firstChild; n; n = nn) {
+            nn = n.nextSibling;
+            if (n.nodeType === 1 && n.localName.toUpperCase() === "OPTION") {
+              n.remove();
+            }
+          }
+          result["clients"].forEach(
+            function (client) {
+              var option = document.createElement("OPTION");
+              option.setAttribute("value", client["client_id"]);
+              option.appendChild(document.createTextNode(client["name"] + " (" + client["client_id"] + ")"));
+              selector.appendChild(option);
+              clientIdToClientMap[client["client_id"]] = client;
+            }
+          );
+
+          btnDoGenerate.addEventListener("click", doGenerate);
+          form.addEventListener("submit", doGenerate);
+          selector.addEventListener("change", onSelectClient);
+          inputScope.addEventListener("input", onInputScopeChange);
+
+          resetForm();
+          target.classList.add("d-block");
+        });
+      }
+    );
+  }
+  btnGenerateTokens.addEventListener("click", function (e) {
+    e.stopPropagation();
+    e.preventDefault();
+    var target = document.getElementById(e.target.dataset.target);
+    showModal(target, endpoints.generateTokens);
+  }, false);
+})(
+  {
+    generateTokens: "{{ request.url_for('admin:pool:users:user:pai:generate_tokens', pool=pool.key, user=user.key) }}",
+    listEligibleClients: "{{ request.url_for('admin:pool:users:user:pai:list_eligible_clients', pool=pool.key, user=user.key) }}"
+  },
+  document.getElementById("btn-generate-tokens")
+);
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+---
+- target_class: cognito_emulator.userpool.models:UserPool
+  data:
+    - id: 1
+      name: "pool"
+      key: "pool1"
+
+- target_class: cognito_emulator.userpool.models:User
+  data:
+    - id: 1
+      name: "foo"
+      key: "foo"
+      password: ""
+      email: "foo@example.com"
+      email_verified: true
+      pool_id: 1

@@ -1,0 +1,35 @@
+{% extends "_base.html" %}
+{% block body %}
+<div>
+  <header style="height: 56px">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <a class="navbar-brand" href="/">Cognito Emulator</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsing-content" aria-controls="navbar-collapsing-content" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbar-collapsing-content">
+        {% if request.user.is_authenticated %}
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">Signed in as {{ request.user.display_name }}</li>
+        </ul>
+        <form class="form-inline ml-0 ml-md-2" action="{{ request.url_for("pools:signout") }}" method="post">
+          <a href="#" onclick="this.parentNode.submit()">Sign out</a>
+        </form>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+  {% if alerts %}
+  <section class="alert-area">
+  {% for alert in alerts %}
+    <div class="alert alert-warning fade show" role="alert">
+      <span>{{ alert }}</span>
+    </div>
+  {% endfor %}
+  </section>
+  {% endif %}
+  <main class="container py-sm-2 py-md-4">
+    {% block main %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

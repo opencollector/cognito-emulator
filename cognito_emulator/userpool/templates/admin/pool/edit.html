@@ -1,0 +1,29 @@
+{% extends "admin/pool/_base.html" %}
+{% block main %}
+<header>
+  {% if pool %}
+  <div class="float-right">
+    <a href="#" class="btn btn-danger">Delete pool</a>
+  </div>
+  {% endif %}
+  <h1>
+    {% if pool %}
+    Pool “{{ pool.name }}”
+    {% else %}
+    New Pool
+    {% endif %}
+  </h1>
+</header>
+<section>
+  <form class="form" method="post">
+    {{ form }}
+    <button class="btn btn-primary">
+      {% if pool %}
+      Update
+      {% else %}
+      Add
+      {% endif %}
+    </button>
+  </form>
+</section>
+{% endblock %}

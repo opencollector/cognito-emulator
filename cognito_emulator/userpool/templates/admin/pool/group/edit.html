@@ -1,0 +1,29 @@
+{% extends "admin/pool/group/_base.html" %}
+{% block main %}
+<header>
+  {% if group %}
+  <div class="float-right">
+    <a href="#" class="btn btn-danger">Delete group</a>
+  </div>
+  {% endif %}
+  <h1>
+    {% if group %}
+    Group “{{ group.name }}”
+    {% else %}
+    New Group
+    {% endif %}
+  </h1>
+</header>
+<section>
+  <form class="form" method="post">
+    {{ form }}
+    <button class="btn btn-primary">
+      {% if group %}
+      Update
+      {% else %}
+      Add
+      {% endif %}
+    </button>
+  </form>
+</section>
+{% endblock %}

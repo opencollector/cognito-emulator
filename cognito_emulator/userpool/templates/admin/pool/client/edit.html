@@ -1,0 +1,29 @@
+{% extends "admin/pool/client/_base.html" %}
+{% block main %}
+<header>
+  {% if client %}
+  <div class="float-right">
+    <a href="#" class="btn btn-danger">Delete client</a>
+  </div>
+  {% endif %}
+  <h1>
+    {% if client %}
+    Client “{{ client.name }}”
+    {% else %}
+    New Client
+    {% endif %}
+  </h1>
+</header>
+<section>
+  <form class="form" method="post">
+    {{ form }}
+    <button class="btn btn-primary">
+      {% if client %}
+      Update
+      {% else %}
+      Add
+      {% endif %}
+    </button>
+  </form>
+</section>
+{% endblock %}

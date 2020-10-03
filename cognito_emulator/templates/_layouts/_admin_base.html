@@ -1,0 +1,58 @@
+{% extends "_base.html" %}
+{% block post_css %}
+<style type="text/css">
+.sidebar .sidebar-toc ul {
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar .sidebar-toc ul li {
+  list-style-type: none;
+  list-style-position: inside;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar .sidebar-toc li > ul {
+  margin-left: 0.5em;
+}
+
+.siderbar .sidebar-toc.active > span,
+.siderbar .sidebar-toc.active > a {
+  font-weight: bold;
+}
+
+</style>
+{% endblock %}
+{% block body %}
+<div>
+  <header style="height: 56px">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+      <a class="navbar-brand" href="/">Cognito Emulator</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsing-content" aria-controls="navbar-collapsing-content" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </nav>
+  </header>
+  {% if alerts %}
+  <section class="alert-area">
+  {% for alert in alerts %}
+    <div class="alert alert-warning fade show" role="alert">
+      <span>{{ alert }}</span>
+    </div>
+  {% endfor %}
+  </section>
+  {% endif %}
+  <div class="container-fluid">
+    <div class="row flex-xl-nowrap">
+      <div class="col-12 col-md-3 col-xl-2 sidebar border-right py-3 px-4 d-none d-md-block position-sticky" style="min-height: 100vh">
+      {% block sidebar %}
+      {% endblock %}
+      </div>
+      <main class="col-12 col-md-9 col-xl-8 py-4 pl-3 pl-md-4 sidebar-content container-fluid">
+        {% block main %}{% endblock %}
+      </main>
+    </div>
+  </div>
+</div>
+{% endblock %}

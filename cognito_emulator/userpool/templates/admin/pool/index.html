@@ -1,0 +1,15 @@
+{% extends "admin/pool/_base.html" %}
+{% block main %}
+<header>
+  <h1>Pool “{{ pool.name }}”</h1>
+</header>
+<section>
+  <p><strong>Pool issuer URL:</strong> {{ issuer_url }}</p>
+  <ul>
+    <li><a href="{{ request.url_for('admin:pool:edit', pool=pool.key) }}">Edit</a></li>
+    <li><a href="{{ request.url_for('admin:pool:users:index', pool=pool.key) }}">Create/edit users</a></li>
+    <li><a href="{{ request.url_for('admin:pool:groups:index', pool=pool.key) }}">Create/edit groups</a></li>
+    <li><a href="{{ request.url_for('admin:pool:clients:index', pool=pool.key) }}">Create/edit clients</a></li>
+  </ul>
+</section>
+{% endblock %}

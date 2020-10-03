@@ -1,0 +1,14 @@
+{% extends "_layouts/_pools_base.html" %}
+{% block title %}Index{% endblock %}
+{% block main %}
+<header class="row align-items-center" style="margin-top: 24px; margin-bottom: 12px;">
+  <h1 class="col-12 col-md-8">{{ pool.name }}</h1>
+</header>
+<div class="row align-items-center">
+  <div class="col">
+    <ul>
+      <li><a href="{{ request.url_for("pools:signin", pool=pool.key) }}">Sign in</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

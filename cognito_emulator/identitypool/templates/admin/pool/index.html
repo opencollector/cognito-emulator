@@ -1,0 +1,16 @@
+{% extends "admin/pool/_base.html" %}
+{% block main %}
+<header>
+  <h1>Pool “{{ pool.name }}”</h1>
+</header>
+<section>
+  <p>
+    <strong>Identity pool ID:</strong> {{ request.app.state.region }}:{{ pool.key }}
+  </p>
+  <ul>
+    <li><a href="{{ request.url_for('admin:pool:edit', pool=pool.key) }}">Edit</a></li>
+    <li><a href="{{ request.url_for('admin:pool:providers:index', pool=pool.key) }}">List providers</a></li>
+    <li><a href="{{ request.url_for('admin:pool:identities:index', pool=pool.key) }}">List identities</a></li>
+  </ul>
+</section>
+{% endblock %}
